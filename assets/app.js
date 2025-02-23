@@ -292,6 +292,16 @@ function logging(){
     }
 }
 
+
+
+
+
+
+// >>>>>>>>>>>>> here
+
+
+
+
 function toggleDropdown(){
     var $parent = $(this).closest('.record');
     $parent.toggleClass('showDropdown');
