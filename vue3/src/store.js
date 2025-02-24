@@ -1,4 +1,6 @@
 import { reactive } from 'vue';
+import Cookies from 'js-cookie';
+
 import { Record } from './assets/Classes';
 
 export const store = reactive({
@@ -17,7 +19,7 @@ export const store = reactive({
 	percent: 0,
 	selectedIndex: 0,
 	records: [],
-	settings: {},
+	settings: {delayRefresh: false},
 	delayRefreshArr: [],
 	isAnimated: false,
 	isTouched: false,
@@ -37,9 +39,9 @@ export const store = reactive({
 	goalPercent(counterDay, goal){
 		if(counterDay === undefined) counterDay = parseInt(this.selectedRecord.counterDay);
 		if(goal === undefined) goal = parseInt(this.selectedRecord.goal);
-		if(counterDay == 0) 
+		if(counterDay == 0)
 			return 0;
-		if(goal == 0 || goal === null || goal === undefined) 
+		if(goal == 0 || goal === null || goal === undefined)
 			goal = 100;
 		return parseInt(counterDay/goal*100);
 	},
@@ -50,16 +52,16 @@ export const store = reactive({
 	},
 
 	fillSelectedRecord(){
-		this.setProgress(gPercent);
+		this.setProgress(this.goalPercent());
 		this.activeChanged = true;
 	},
 
 	setProgress(value, refreshPercent, counter, today, week, total){
 		if(refreshPercent !== undefined) this.percent = value+' %';
 		if(counter !== undefined) this.counter = counter;
-		if(today !== undefined) this.today = today; 
-		if(week !== undefined) this.week = week; 
-		if(total !== undefined) this.total = this.thousandFormat(total); 
+		if(today !== undefined) this.today = today;
+		if(week !== undefined) this.week = week;
+		if(total !== undefined) this.total = this.thousandFormat(total);
 		// this.pulse($progress);
 	},
 
@@ -69,22 +71,38 @@ export const store = reactive({
 		if(lastWriting.getDate() != today.getDate() || lastWriting.getMonth() != today.getMonth() || lastWriting.getFullYear() != today.getFullYear()){
 			this.history.lastWriting = today.toLocaleString("en"); // timestamp
 			console.log("History is lastWritten today", today.toLocaleString("en"));
-			$.each(this.records, function(i, rec){
-				if(rec == null) return;
-				if(lastWriting.getWeekNumber() != today.getWeekNumber()){ // new week
-					rec.counterWeek = 0;
-					this.week = 0;
-				}
-				$.each(this.history.logBooks, function(j, logBook){
-					if(rec.id == logBook.recordId && rec.counterDay > 0){ // no logging if today's log is 0
-						let yesterday = new Date();
-						yesterday.setDate(yesterday.getDate()-1);
-						logBook.logs.push(new Log(yesterday.toLocaleString("en")/* timestamp */, rec.counterDay)); // save the daily every time you save
-						rec.counterDay = 0;
-					}
-				});
-			});
-			this.save();
+			// $.each(this.records, function(i, rec){
+			// 	if(rec == null) return;
+			// 	if(lastWriting.getWeekNumber() != today.getWeekNumber()){ // new week
+			// 		rec.counterWeek = 0;
+			// 		this.week = 0;
+			// 	}
+			// 	$.each(this.history.logBooks, function(j, logBook){
+			// 		if(rec.id == logBook.recordId && rec.counterDay > 0){ // no logging if today's log is 0
+			// 			let yesterday = new Date();
+			// 			yesterday.setDate(yesterday.getDate()-1);
+			// 			logBook.logs.push(new Log(yesterday.toLocaleString("en")/* timestamp */, rec.counterDay)); // save the daily every time you save
+			// 			rec.counterDay = 0;
+			// 		}
+			// 	});
+			// });
+      store.records.forEach(rec => {
+        if (!rec) return;
+        if (lastWriting.getWeekNumber() !== today.getWeekNumber()) { // new week
+          rec.counterWeek = 0;
+          store.week = 0;
+        }
+        store.history.logBooks.forEach(logBook => {
+          if (rec.id === logBook.recordId && rec.counterDay > 0) {
+            let yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            logBook.logs.push(new Log(yesterday.toLocaleString("en"), rec.counterDay));
+            rec.counterDay = 0;
+          }
+        });
+      });
+
+      this.save();
 			console.log("Logging saved! history: ", this.history);
 			if(this.isLoggedIn && db !== undefined){
 				this.db.BACKUP_USER();
@@ -94,7 +112,7 @@ export const store = reactive({
 	},
 
 	save(toSave){
-		if(this.isLoggedIn()){
+		if(this.isLoggedIn){
 			this.db.save();
 		}else{
 			this.saveSTORE(toSave);
@@ -132,13 +150,13 @@ export const store = reactive({
 				console.log("Logging saved!");
 			}
 		}
-		console.log(toSave == "all" || toSave == "records" ? 'records':'', toSave == "all" || toSave == "selectedIndex" ? 'selectedIndex':'', toSave == "all" || toSave == "history" ? 'history':'', 'saved !'); 
+		console.log(toSave == "all" || toSave == "records" ? 'records':'', toSave == "all" || toSave == "selectedIndex" ? 'selectedIndex':'', toSave == "all" || toSave == "history" ? 'history':'', 'saved !');
 	},
 
 	increaseCounter(e){
 		if(!(this.isTouched && e.type == 'click')){
 			if(e.type == 'touchend') this.isTouched = true;
-			this.selectedRecord.counter++; 
+			this.selectedRecord.counter++;
 			this.selectedRecord.counterDay++;
 			this.selectedRecord.counterWeek++;
 			this.selectedRecord.total++;
@@ -162,7 +180,7 @@ export const store = reactive({
 
 	reset() {
 		this.count = 0;
-		this.selectedRecord.counter = 0; 
+		this.selectedRecord.counter = 0;
 		this.saveSelectedRecord();
 	},
 
@@ -197,7 +215,7 @@ export const store = reactive({
 					this.selectedIndex = i;
 					return false;
 				}
-			});   
+			});
 		}
 		this.save();
 	},
@@ -210,7 +228,7 @@ export const store = reactive({
 		}
 	},
 
-	
+
 
 
 
@@ -224,6 +242,6 @@ export const store = reactive({
 		else if (n >= 1000 && n < 1000000) return +(n / 1000).toFixed(1) + "K";
 		else if (n >= 1000000 && n < 1000000000) return +(n / 1000000).toFixed(1) + "M";
 	},
-	
+
 
 });

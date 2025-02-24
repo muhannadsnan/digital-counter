@@ -17,8 +17,8 @@
                         <button id="add-record-btn" class="pt-1" @click="createRecord"><i class="fas fa-plus-square"></i></button>
                     </div>
                     <label id="chkDelayRefresh" class="color-white">
-                        <i class="unchecked far fa-square mr-1 color-grey" :class="{'d-none': STORE.settings.delayRefresh}"></i>
-                        <i class="checked far fa-check-square mr-1 color-primary" :class="{'d-none': !STORE.settings.delayRefresh}"></i><small>Delay refresh counters</small>
+                        <i class="unchecked far fa-square mr-1 color-grey" :class="{'d-none': store.settings.delayRefresh}"></i>
+                        <i class="checked far fa-check-square mr-1 color-primary" :class="{'d-none': !store.settings.delayRefresh}"></i><small>Delay refresh counters</small>
                     </label>
                 </div>
 
@@ -45,7 +45,7 @@
             </div>
             <div class="panel-footer p-2 mt-2">
                 <h3>What is this app for?</h3>
-                <p style="text-align: justify;">Many people have need to count (words, items, maraton runners) among other things that go fast. Other people have tasks to count the accuracy of specific items on a production line. Another synario is religious people who set them selves a goal to say "precious words" for thousands of times, which is too hard to focus on. Also in sports, referees can use this app to count shots, fouls, passes and so on. Therefor, this app can help users do their "counting tasks" easily and achieve their goals.</p>                             
+                <p style="text-align: justify;">Many people have need to count (words, items, maraton runners) among other things that go fast. Other people have tasks to count the accuracy of specific items on a production line. Another synario is religious people who set them selves a goal to say "precious words" for thousands of times, which is too hard to focus on. Also in sports, referees can use this app to count shots, fouls, passes and so on. Therefor, this app can help users do their "counting tasks" easily and achieve their goals.</p>
                 <h3>Features</h3>
                 <ul class="pr-0 pl-3" style="text-align: left;">
                     <li>Add more records to count multi-tasks separately</li>
@@ -64,7 +64,7 @@
         </div>
     </div>
 </template>
-  
+
 <script setup>
     import { ref } from 'vue'
     import { store } from '@/store'
@@ -83,7 +83,7 @@
             const newRecord = new Record(incrementID(), $input.val());
             store.records.unshift(newRecord);
             store.history.logBooks.push(
-                new Logbook(newRecord.id, 
+                new Logbook(newRecord.id,
                     new Log(
                         new Date().toLocaleString("en"), newRecord.counter
                     )
@@ -115,4 +115,3 @@
     }
 
 </script>
-  

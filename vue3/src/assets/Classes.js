@@ -15,14 +15,14 @@ export class Record{
     }
 }
 
-export class History{
+export class RecordHistory{
     constructor(logBooks, lastWriting){
         this.logBooks = logBooks || [];
         this.lastWriting = lastWriting || 0;
         this.print();
     }
     print(){
-        console.log("History instantiated!");
+        console.log("RecordHistory instantiated!");
     }
 }
 
@@ -41,7 +41,7 @@ export class Logbook{
     constructor(recordId, logs, weekly, monthly, yearly){
         this.recordId = recordId || 0;
         this.logs = [];
-        if(logs !== undefined && logs !== null) 
+        if(logs !== undefined && logs !== null)
             this.logs.push(logs);
         this.print();
     }
@@ -94,7 +94,7 @@ export class Database{
             .then(function(result) {
                 TOKEN = result.credential.accessToken;
                 USER = result.user;
-                console.log(isLoggedIn() ? "You are signed in!!" : "still stated as not signed in.."); 
+                console.log(isLoggedIn() ? "You are signed in!!" : "still stated as not signed in..");
                 Cookies.set("token", TOKEN, cookieOptions);
                 Cookies.set("user", JSON.stringify(USER), cookieOptions);
                 STORE = Cookies.get() || false;
@@ -108,13 +108,13 @@ export class Database{
         Database.prototype.fetchUserData().then(function(result){
             if(result == "NO SUCH EMAIL EXISTS BEFORE"){ // SAVE cookie-store, WARNING: overwrite database in cloud
                 // json-parse the cookie-store before it is saved to cloud
-                if(STORE['history'] !== undefined && typeof STORE['history'] == 'string') 
+                if(STORE['history'] !== undefined && typeof STORE['history'] == 'string')
                     STORE['history'] = JSON.parse(STORE['history']);
-                if(STORE['records'] !== undefined && typeof STORE['records'] == 'string') 
+                if(STORE['records'] !== undefined && typeof STORE['records'] == 'string')
                     STORE['records'] = JSON.parse(STORE['records']);
-                if(STORE['settings'] !== undefined && typeof STORE['settings'] == 'string') 
+                if(STORE['settings'] !== undefined && typeof STORE['settings'] == 'string')
                     STORE['settings'] = JSON.parse(STORE['settings']);
-                if(STORE['user'] !== undefined && typeof STORE['user'] == 'string') 
+                if(STORE['user'] !== undefined && typeof STORE['user'] == 'string')
                     STORE['user'] = JSON.parse(STORE['user']);
                 USER = STORE['user'];
                 save(); // !! cookies-store upload !!
@@ -148,11 +148,11 @@ export class Database{
             });
         });
     }
-    
+
     signOut(){
         firebase.auth().signOut();
     }
-    
+
     save(){
         if(STORE.records === undefined || STORE.records.length == 0){
             alert("Cannot save empty STORE!");
@@ -167,7 +167,7 @@ export class Database{
     BACKUP_USER(){
         var lastWriting = STORE.history.lastWriting;
         var _db = firebase.firestore();
-        _db.collection("_BACKUP-counter-users").doc(USER.email).get().then(function(docRef){ 
+        _db.collection("_BACKUP-counter-users").doc(USER.email).get().then(function(docRef){
             lastWriting = new Date(Date.parse(lastWriting));
             var lastBackup = false;
             if(docRef.data() !== undefined){
@@ -202,7 +202,7 @@ Date.prototype.getWeekNumber = function(){
     var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
     return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
   };
-/* 
+/*
 GRAPHS:
     - show chart for a certain record
     - can add another record to the chart for comparison

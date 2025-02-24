@@ -11,24 +11,24 @@
 		<DigitalCounter />
 
 		<!-- Panel (Records, Settings, etc.) -->
-		<Panel v-show="store.isPanelVisible" />
+		<Panel v-show="STORE.isShowPanel" />
 
 		<!-- Chart Panel (hidden by default, toggled on demand) -->
-		<ChartPanel v-show="store.isChartPanelVisible" />
+		<ChartPanel v-show="STORE.isChartPanelVisible" />
 
 	<footer class="d-flex justify-content-between">
 		<p class="ml-auto">Digital Counter v8.0.2</p>
 		<p id="percent" class="color-white">{{ (STORE.goalPercent() || '--') + ' %'}}</p>
 	</footer>
 
-	</div>   
+	</div>
 </template>
 
 <script setup>
 	import { onMounted } from 'vue'
 	import { store as STORE } from '@/store'
 	import Cookies from 'js-cookie'
-	import { Database } from '@/assets/Classes.js'
+	import { Database, RecordHistory, User } from '@/assets/Classes.js'
 	import DigitalCounter from './components/DigitalCounter.vue'
 	import Panel from './components/Panel.vue'
 	import ChartPanel from './components/ChartPanel.vue'
@@ -53,27 +53,33 @@
 	function bootApp() {
 		console.log('bootApp: setting initial values...');
 		fillValues();
-		if(selectedRecord === undefined){
-			setProgress(0);
+		if(STORE.selectedRecord === undefined){
+			STORE.setProgress(0);
 		}else{
-			setProgress(goalPercent());
+			STORE.setProgress(STORE.goalPercent());
 		}
-		if(!hasInitializedListeners){
-			initListeners();
-		}
-		$panel.find('.settings').removeClass('show');
-		$panel.find('#showSettings').removeClass('d-none');.
+    STORE.isShowSettings = false;
 	}
 
 	function fillValues(){
-		if(!STORE.isLoggedIn()){
-			STORE = Cookies.get();
-			if(STORE.records !== undefined) STORE.records = JSON.parse(STORE.records);
-			if(STORE.history !== undefined) STORE.history = JSON.parse(STORE.history);
-		}
+		// if(!STORE.isLoggedIn){
+		// 	STORE = Cookies.get();
+		// 	if(STORE.records !== undefined) STORE.records = JSON.parse(STORE.records);
+		// 	if(STORE.history !== undefined) STORE.history = JSON.parse(STORE.history);
+		// }
+    //
+
+    const storedData = Cookies.get('store');
+    if (storedData) {
+      const parsedStore = JSON.parse(storedData);
+      Object.assign(STORE, parsedStore);
+    }
+
+
+
 		// No STORE, meaning cookie is empty, happens on first visit
 		if(STORE === undefined) STORE = {};
-		if(STORE.history === undefined) STORE.history = new History(); // All histories of records
+		if(STORE.history === undefined) STORE.history = new RecordHistory(); // All histories of records
 		if(STORE.history.logBooks === undefined) STORE.history.logBooks = [];
 		if(STORE.selectedIndex === undefined) STORE.selectedIndex = 0;
 		if(STORE.records === undefined) {
@@ -83,19 +89,30 @@
 			STORE.selectedIndex = 0;
 		}
 		if(STORE.USER === undefined) STORE.USER = new User();
-		/* ensure that every record has Logbook */
-		$.each(STORE.records, function(i, rec){
-			if(rec == null){ // delete empty records
-				delete STORE.records[i];
-			}else{
-				if(!STORE.history.logBooks.some(el => el.recordId == rec.id)){
-					console.log("Generating daily Log for record ("+rec.title+")");
-					STORE.history.logBooks.push(new Logbook(rec.id));
-				}
-			}
-		});
-		STORE.fillSelectedRecord();
-		STORE.username = STORE.isLoggedIn() ? STORE.USER.displayName : 'Guest';
+		// /* ensure that every record has Logbook */
+		// $.each(STORE.records, function(i, rec){
+		// 	if(rec == null){ // delete empty records
+		// 		delete STORE.records[i];
+		// 	}else{
+		// 		if(!STORE.history.logBooks.some(el => el.recordId == rec.id)){
+		// 			console.log("Generating daily Log for record ("+rec.title+")");
+		// 			STORE.history.logBooks.push(new Logbook(rec.id));
+		// 		}
+		// 	}
+		// });
+    // First, remove null elements from the array
+    STORE.records = STORE.records.filter(rec => rec !== null);
+
+    // Then, for each remaining record, ensure it has a logbook
+    STORE.records.forEach(rec => {
+      if (!STORE.history.logBooks.some(el => el.recordId === rec.id)) {
+        console.log("Generating daily Log for record (" + rec.title + ")");
+        STORE.history.logBooks.push(new Logbook(rec.id));
+      }
+    });
+
+    STORE.fillSelectedRecord();
+		STORE.username = STORE.isLoggedIn ? STORE.USER.displayName : 'Guest';
 		STORE.logging();
 		if(STORE.settings === undefined){
 			STORE.settings = new Settings();
@@ -112,7 +129,7 @@
 		try {
 			await initApp(); // Run initialization (reading cookies, setting up DB, etc.)
 			// Once initialization is done, set isAnimated to true in your store
-			store.isAnimated = true;
+			STORE.isAnimated = true;
 		} catch (error) {
 			console.error('Initialization failed:', error);
 			initialized.value = true; // Even on error, show the app
