@@ -1,15 +1,15 @@
 <template>
-    <div id="panel" class="transition trans-left trans-right">
+    <div id="panel" class="transition trans-left trans-right" :class="{show: store.isShowPanel}">
         <div class="container border">
-            <button id="closePanel" @click="closePanel" class="position-right p-2"><i class="fas fa-arrow-alt-circle-right"></i></button>
+            <button id="closePanel" @click="store.closePanel()" class="position-right p-2"><i class="fas fa-arrow-alt-circle-right"></i></button>
 
             <h1 class="panel-heading m-2">RECORDS</h1>
 
-            <button id="showSettings" class="toggleSettings p-2" :class="{'d-none': !store.isShowSettings}"><i class="fas fa-tools"></i></button>
+            <button id="showSettings" @click="store.toggleSettings()" class="toggleSettings p-2" :class="{'d-none': !store.isShowSettingsBtn}"><i class="fas fa-tools"></i></button>
 
             <div class="panel-body px-2">
                 <div class="settings transition trans-height mb-2 height-0 color-secondary" :class="{show: store.isShowSettings}">
-                    <button id="hideSettings" class="toggleSettings p-1 font-4 float-right"><i class="fas fa-times close"></i></button>
+                    <button @click="store.isShowSettings = false" id="hideSettings" class="toggleSettings p-1 font-4 float-right"><i class="fas fa-times close"></i></button>
                     <h4 class="heading m-1 color-white">SETTINGS</h4>
                     <span>Create new record</span>
                     <div class="add-record d-flex mb-2">
@@ -27,19 +27,19 @@
                 <div class="login-buttons-container" :class="{'d-none': store.isLoggedIn}">
                     <div class="">
                         <button id="signin-google" data-signin-type="google" class="signin font-4 btn btn-block border-0 mt-3 p-0 p-2 d-flex align-items-center">
-                            <img src="./public/assets/img/google-favico.png" class="px-3"> Signin with Google
+                            <img src="@/assets/img/google-favico.png" class="px-3"> Signin with Google
                         </button>
                         <button id="signin-facebook" data-signin-type="facebook" class="signin font-4 btn btn-block color-white border-0 mt-3 p-0 p-2 d-flex align-items-center">
-                            <img src="./public/assets/img/facebook-favico.png" class="px-3"> Signin with Facebook
+                            <img src="@/assets/img/facebook-favico.png" class="px-3"> Signin with Facebook
                         </button>
                     </div>
                 </div>
 
                 <button id="showPrayers" class="btn btn-block color-white mt-3 p-0 d-flex align-items-center justify-content-center">
-                    <img src="./public/assets/img/ico-muslimpro.png" class="pr-3"> Prayers
+                    <img src="@/assets/img/ico-muslimpro.png" class="pr-3"> Prayers
                 </button>
 
-                <button id="logoutBtn" class="btn btn-block mt-3 bg-grey color-grey" :class="{'d-none': store.isLoggedIn}">
+                <button id="logoutBtn" class="btn btn-block mt-3 bg-grey color-grey" :class="{'d-none': !store.isLoggedIn}">
                     <i class="fas fa-user-lock mr-2"></i>Logout
                 </button>
             </div>
@@ -92,7 +92,7 @@
             store.save();
             newTitle.value = '';
             toggleSettings();
-            store.selectRecord(newRecord.id);
+            store.doSelectRecord(newRecord.id);
             store.fillSelectedRecord();
             store.selectedIndex = store.records.length - 1
             // pulse($panel.find('.record').first(), 1);

@@ -2,7 +2,7 @@
     <!-- Clickable area to increment counter -->
     <div id="clicker" @click="store.increaseCounter" @touchend="store.increaseCounter"></div>
 
-    <button id="reset" @click="store.reset" class="p-2"><i class="fas fa-redo"></i></button>  
+    <button id="reset" @click="store.reset" class="p-2"><i class="fas fa-redo"></i></button>
     <p id="counter" class="pt-2">{{ store.selectedRecord.counter }}</p>
     <button id="showPanel" @click="store.togglePanel" class="position-right p-2" ref="showPanelBtn"><i class="fas fa-cog"></i></button>
 
@@ -33,7 +33,7 @@
         </div>
     </div>
 </template>
-  
+
 <script setup>
     import { ref } from 'vue'
     import { store } from '@/store'
@@ -46,4 +46,3 @@
 		$element.addClass(types[i]);
 	}
 </script>
-  

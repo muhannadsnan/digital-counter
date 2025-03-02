@@ -1,13 +1,13 @@
 <template>
     <div class="record-list">
-      <div v-for="record in store.records" :key="record.id" @click="storeselectRecord(record.id)" 
+      <div v-for="record in store.records" :key="record.id" @click="store.doSelectRecord(record.id)"
 	  		data-id="record.id" data-title="record.title" data-counter-log="record.counterDay" data-goal="record.goal"
 			class="record d-flex flex-col" :class="{'color-primary active': store.selectedRecord.id == record.id}">
         <div class="record-body">
             <span class="today">{{ (record.counterDay || 0) + ' today' }}</span>
-            <span class="progress">{{ store.goalPercent(record.counterDay, record.goal) }}</span>
+            <span class="progress">{{ store.goalPercent(record) }}</span>
             <div class="title">
-				<i class="done fas fa-check color-green p-0" :class="{'d-none': percent < 100}"></i>
+				<i class="done fas fa-check color-green p-0" :class="{'d-none': store.percent < 100}"></i>
 				<span class="label">{{ record.title }}</span>
 			</div>
         </div>
@@ -27,8 +27,7 @@
     </div>
     </div>
   </template>
-  
+
   <script setup>
   	import { store } from '@/store'
   </script>
-  

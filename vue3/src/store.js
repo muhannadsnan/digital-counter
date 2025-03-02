@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import { Record } from './assets/Classes';
 
 export const store = reactive({
+  version: '8.4',
 	// Database & Cookie
 	TOKEN: '',
 	USER: {},
@@ -21,34 +22,30 @@ export const store = reactive({
 	records: [],
 	settings: {delayRefresh: false},
 	delayRefreshArr: [],
-	isAnimated: false,
 	isTouched: false,
 	activeChanged: false,
-
-
 	// UI toggles for showing/hiding panels
 	isShowPanel: false,
 	isShowSettings: false,
 	isShowChartPanel: false,
+  // App initiated and values loaded
+  isReady: false,
 
 	// Computed property as a getter
 	get isLoggedIn(){
 		return !(this.TOKEN === undefined || this.TOKEN === '' || this.USER === undefined || this.USER.email === 'null');
 	},
+  get isShowSettingsBtn(){
+    return !this.isShowSettings
+  },
 
-	goalPercent(counterDay, goal){
-		if(counterDay === undefined) counterDay = parseInt(this.selectedRecord.counterDay);
-		if(goal === undefined) goal = parseInt(this.selectedRecord.goal);
-		if(counterDay == 0)
+	goalPercent(record){
+    if(record === undefined) record = this.selectedRecord;
+		if(record.counterDay === 0)
 			return 0;
-		if(goal == 0 || goal === null || goal === undefined)
-			goal = 100;
-		return parseInt(counterDay/goal*100);
-	},
-
-	// Computed property for progress percentage
-	get progressPercentage() {
-		return Math.min(100, (this.count / this.target) * 100);
+		if(!record.goal)
+			record.goal = 100;
+		return parseInt(record.counterDay / record.goal * 100);
 	},
 
 	fillSelectedRecord(){
@@ -184,15 +181,13 @@ export const store = reactive({
 		this.saveSelectedRecord();
 	},
 
-	togglePannel(){
-		if(this.isShowPanel){
-			this.isShowSettings = false;
-		}
+	togglePanel(){
 		this.isShowPanel = !this.isShowPanel;
+    this.isShowSettings = !this.isShowPanel;
 	},
 
 	showPanel(){
-		this.togglePannel();
+		this.isShowPanel = true;
 	},
 
 	closePanel(){
@@ -201,10 +196,10 @@ export const store = reactive({
 			// this.pulseAll();
 			this.activeChanged = false;
 		}
-		this.togglePannel();
+    this.isShowPanel = false;
 	},
 
-	selectRecord(recID){
+  doSelectRecord(recID){
 		if(recID === undefined){
 			this.selectedIndex = 0;
 			return;
@@ -222,7 +217,7 @@ export const store = reactive({
 
 	get selectedRecord() {
 		if(this.records.length === 0){
-			return { id: 1, title: 'Default Record', counter: 0, counterDay: 0, counterWeek: 0, total: 0 };
+			return new Record();
 		}else{
 			return this.records[this.selectedIndex];
 		}
@@ -234,7 +229,11 @@ export const store = reactive({
 
 
 
-
+  toggleSettings(){
+    this.isShowSettings = !this.isShowSettings;
+    // $panel.find('#add-record-input').focus();
+    // pulse($('#showSettings'), 2);
+  },
 
 	// HELPERS
 	thousandFormat(n){
