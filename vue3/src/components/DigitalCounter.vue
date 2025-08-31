@@ -1,15 +1,16 @@
 <template>
+  <div class="digital-counter-wrapper">
     <!-- Clickable area to increment counter -->
-    <div id="clicker" @click="store.increaseCounter" @touchend="store.increaseCounter"></div>
+    <div id="clicker" v-show="!store.isShowPanel" @click="store.increaseCounter($event)" @touchend="store.increaseCounter($event)"></div>
 
     <button id="reset" @click="store.reset" class="p-2"><i class="fas fa-redo"></i></button>
-    <p id="counter" class="pt-2">{{ store.selectedRecord.counter }}</p>
+    <p id="counter" class="pt-2">{{ store.selectedRecord ? store.selectedRecord.counter : 0 }}</p>
     <button id="showPanel" @click="store.togglePanel" class="position-right p-2" ref="showPanelBtn"><i class="fas fa-cog"></i></button>
 
     <div class="main">
-        <p id="recordTitle">{{ store.selectedRecord.title }}</p>
-        <div id="progress" :class="{'color-green': store.percent >= 100}">
-            <div class="val c-0 trans-all-5s trans-width-delay-08s" :class="{'c-100 goal-achieved': store.percent >= 100, [`c-${store.percent%100}`]: store.percent < 100}">
+        <p id="recordTitle">{{ store.selectedRecord ? store.selectedRecord.title : 'Loading...' }}</p>
+        <div id="progress" :class="{'color-green': store.goalPercent() >= 100}">
+            <div class="val c-0 trans-all-5s trans-width-delay-08s" :class="{'c-100 goal-achieved': store.goalPercent() >= 100, [`c-${store.goalPercent()%100}`]: store.goalPercent() < 100}">
                 <span class="goal-achieved-label label justify-content-center align-items-center"><i class="fas fa-star fa-2x mb-2 pb-2 "></i>DAILY GOAL</span>
             </div>
         </div>
@@ -20,18 +21,19 @@
             </div>
             <div class="today d-flex justify-content-center color-white mb-1">
                 <span class="label mr-2">Today</span>
-                <span id="today" class="number">{{ store.selectedRecord.counterDay }}</span>
+                <span id="today" class="number">{{ store.selectedRecord ? store.selectedRecord.counterDay : 0 }}</span>
             </div>
             <div class="week d-flex justify-content-center mb-1">
                 <span class="label mr-2">This week</span>
-                <span id="week" class="number m-0">{{ store.selectedRecord.counterWeek }}</span>
+                <span id="week" class="number m-0">{{ store.selectedRecord ? store.selectedRecord.counterWeek : 0 }}</span>
             </div>
             <div class="total d-flex justify-content-center mb-1">
                 <span class="label mr-2">Total</span>
-                <span id="total" class="number m-0">{{ store.selectedRecord.total }}</span>
+                <span id="total" class="number m-0">{{ store.selectedRecord ? store.thousandFormat(store.selectedRecord.total) : 0 }}</span>
             </div>
         </div>
     </div>
+  </div>
 </template>
 
 <script setup>

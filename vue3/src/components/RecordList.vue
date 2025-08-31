@@ -1,17 +1,20 @@
 <template>
     <div class="record-list">
-      <div v-for="record in store.records" :key="record.id" @click="store.doSelectRecord(record.id)"
-	  		data-id="record.id" data-title="record.title" data-counter-log="record.counterDay" data-goal="record.goal"
-			class="record d-flex flex-col" :class="{'color-primary active': store.selectedRecord.id == record.id}">
-        <div class="record-body">
+      <div v-for="record in store.records" :key="record.id"
+	  		:data-id="record.id" :data-title="record.title" :data-counter-log="record.counterDay" :data-goal="record.goal"
+			class="record d-flex flex-col" :class="{'color-primary active': store.selectedRecord && store.selectedRecord.id == record.id, 'showDropdown': showDropdown === record.id}">
+        <div class="record-body" @click="store.doSelectRecord(record.id); store.fillSelectedRecord()">
             <span class="today">{{ (record.counterDay || 0) + ' today' }}</span>
-            <span class="progress">{{ store.goalPercent(record) }}</span>
+            <span class="progress">{{ store.goalPercent(record) + '%' }}</span>
             <div class="title">
-				<i class="done fas fa-check color-green p-0" :class="{'d-none': store.percent < 100}"></i>
+				<i class="done fas fa-check color-green p-0" :class="{'d-none': store.goalPercent(record) < 100}"></i>
 				<span class="label">{{ record.title }}</span>
 			</div>
         </div>
-        <button class="details pos-right px-3 py-2"><i class="fas fa-ellipsis-v show"></i> <i class="fas fa-angle-up close"></i></button>
+        <button class="details position-right px-3 py-2" @click="toggleDropdown(record.id)">
+            <i class="fas fa-ellipsis-v show"></i> 
+            <i class="fas fa-angle-up close"></i>
+        </button>
         <div class="dropdown transition trans-height px-2 float-right">
             <div class="mt-1 col-6">
                 <p class="d-flex justify-content-between total">TOTAL <span>{{ record.total }}</span></p>
@@ -29,5 +32,16 @@
   </template>
 
   <script setup>
+  	import { ref } from 'vue'
   	import { store } from '@/store'
+  	
+  	const showDropdown = ref(null)
+  	
+  	function toggleDropdown(recordId) {
+  		if (showDropdown.value === recordId) {
+  			showDropdown.value = null
+  		} else {
+  			showDropdown.value = recordId
+  		}
+  	}
   </script>

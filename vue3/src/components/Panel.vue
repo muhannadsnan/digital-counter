@@ -22,14 +22,16 @@
                     </label>
                 </div>
 
-                <RecordList />
+                <div class="records">
+                    <RecordList />
+                </div>
 
                 <div class="login-buttons-container" :class="{'d-none': store.isLoggedIn}">
                     <div class="">
-                        <button id="signin-google" data-signin-type="google" class="signin font-4 btn btn-block border-0 mt-3 p-0 p-2 d-flex align-items-center">
+                        <button id="signin-google" data-signin-type="google" @click="signin('google')" class="signin font-4 btn btn-block border-0 mt-3 p-0 p-2 d-flex align-items-center">
                             <img src="@/assets/img/google-favico.png" class="px-3"> Signin with Google
                         </button>
-                        <button id="signin-facebook" data-signin-type="facebook" class="signin font-4 btn btn-block color-white border-0 mt-3 p-0 p-2 d-flex align-items-center">
+                        <button id="signin-facebook" data-signin-type="facebook" @click="signin('facebook')" class="signin font-4 btn btn-block color-white border-0 mt-3 p-0 p-2 d-flex align-items-center">
                             <img src="@/assets/img/facebook-favico.png" class="px-3"> Signin with Facebook
                         </button>
                     </div>
@@ -39,7 +41,7 @@
                     <img src="@/assets/img/ico-muslimpro.png" class="pr-3"> Prayers
                 </button>
 
-                <button id="logoutBtn" class="btn btn-block mt-3 bg-grey color-grey" :class="{'d-none': !store.isLoggedIn}">
+                <button id="logoutBtn" @click="logout" class="btn btn-block mt-3 bg-grey color-grey" :class="{'d-none': !store.isLoggedIn}">
                     <i class="fas fa-user-lock mr-2"></i>Logout
                 </button>
             </div>
@@ -68,7 +70,8 @@
 <script setup>
     import { ref } from 'vue'
     import { store } from '@/store'
-    import { Record, Logbook, Log } from '@/assets/Classes.js'
+    import { Record, Logbook, Log, autoID } from '@/assets/Classes.js'
+    import Cookies from 'js-cookie'
     import RecordList from './RecordList.vue'
 
     const newTitle = ref('')
@@ -76,11 +79,11 @@
 
     function createRecord(){
         if(newTitle.value.trim().length === 0){
-            recordPlaceholder.value = 'Empty title entered!';
+            placeholder.value = 'Empty title entered!';
         }
         else{
             // pulse($(this), 1);
-            const newRecord = new Record(incrementID(), $input.val());
+            const newRecord = new Record(autoID(), newTitle.value);
             store.records.unshift(newRecord);
             store.history.logBooks.push(
                 new Logbook(newRecord.id,
@@ -91,7 +94,7 @@
             );
             store.save();
             newTitle.value = '';
-            toggleSettings();
+            store.toggleSettings();
             store.doSelectRecord(newRecord.id);
             store.fillSelectedRecord();
             store.selectedIndex = store.records.length - 1
@@ -112,6 +115,43 @@
         if(arr === undefined) arr = store.records;
         if(idProp === undefined) idProp = 'id';
         return Math.max.apply(Math, arr.map(function(el){ return el[idProp]; })) + 1;
+    }
+
+    function signin(type){
+        if (!store.db) {
+            alert('Database not initialized. Please refresh the page.');
+            return;
+        }
+        
+        if (typeof firebase === 'undefined') {
+            alert('Firebase not loaded. Please refresh the page.');
+            return;
+        }
+        
+        let provider;
+        if(type === 'google'){
+            provider = new firebase.auth.GoogleAuthProvider();
+        } else if(type === 'facebook'){
+            provider = new firebase.auth.FacebookAuthProvider();
+        }
+        
+        if(provider){
+            store.db.do_signin(provider);
+        }
+    }
+
+    function logout(){
+        if(confirm('Are you sure you want to logout?')){
+            if (typeof firebase !== 'undefined') {
+                firebase.auth().signOut();
+            }
+            store.TOKEN = '';
+            store.USER = {};
+            store.db = null;
+            Cookies.remove('token');
+            Cookies.remove('user');
+            location.reload();
+        }
     }
 
 </script>
