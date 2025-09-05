@@ -474,6 +474,7 @@ function drawChart(recID, showBy){
     var chartX = 0;
     var maxVal = 0;
     var total = 0;
+    var rec = STORE.records.find(el => el.id == recID);
     function getIntervalY(){
         if(maxVal <= 10){
             return 1;
@@ -645,7 +646,6 @@ function drawChart(recID, showBy){
             break;
     }
     /* Add today to chart for 7-days and 30-days only */
-    var rec = STORE.records.find(el => el.id == recID);
     if(showBy === "7-days" || showBy === "30-days"){
         dataPoints.push({x: new Date(today.getFullYear(), today.getMonth(), today.getDate()), y: rec.counterDay});
         if(rec.counterDay > maxVal) maxVal = rec.counterDay;
