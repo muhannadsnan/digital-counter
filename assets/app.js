@@ -38,6 +38,13 @@ function initListeners(){
     $('#logoutBtn').on('click', logout);
     $chartPanel.find('.close').on('click', closeChartpanel);
     $chartPanel.find('select.showBy').on('change', onChangeShowBy);
+    $('.tab-btn').on('click', function(){
+        var tab = $(this).data('tab');
+        $('.tab-btn').removeClass('active');
+        $(this).addClass('active');
+        $('.tab-pane').removeClass('active');
+        $('#' + tab).addClass('active');
+    });
     $('body').addClass('animated');
     hasInitializedListeners = true;
 }
@@ -713,7 +720,7 @@ function drawChart(recID, showBy){
                 markerSize: 15,
                 markerColor: "green",
                 lineThickness: 5,
-                fillOpacity: .2,
+                fillOpacity: showBy == "today-all" ? .9 : .2,
             }
         ],
         // width: 100,
