@@ -513,6 +513,114 @@ function drawChart(recID, showBy){
         total += selectedRecord.counterDay;
         $("#chart-panel .total span").text(total);
     }
+    
+    function makeWeekData(){
+        var currentWeek = today.getWeekNumber();
+        var _date = new Date(today);
+        // Go back to start of week (Sunday)
+        _date.setDate(_date.getDate() - _date.getDay());
+        
+        for(var i = 0; i < 7; i++){
+            var log = logBook.logs.find(el => {
+                var logDate = new Date(el.date);
+                return logDate.getDate() == _date.getDate() && 
+                       logDate.getMonth() == _date.getMonth() && 
+                       logDate.getFullYear() == _date.getFullYear();
+            });
+            var point = {};
+            point.y = log !== undefined ? log.value : 0;
+            point.x = new Date(_date.getFullYear(), _date.getMonth(), _date.getDate());
+            
+            // If it's today, use current counter instead of log
+            if(_date.getDate() == today.getDate() && 
+               _date.getMonth() == today.getMonth() && 
+               _date.getFullYear() == today.getFullYear()){
+                point.y = rec.counterDay;
+            }
+            
+            dataPoints.push(point);
+            if(point.y > maxVal) maxVal = point.y;
+            total += point.y;
+            _date.setDate(_date.getDate() + 1);
+        }
+        $("#chart-panel .total span").text(total);
+    }
+    
+    function makeMonthData(){
+        var currentMonth = today.getMonth();
+        var currentYear = today.getFullYear();
+        var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        
+        for(var i = 1; i <= daysInMonth; i++){
+            var _date = new Date(currentYear, currentMonth, i);
+            var log = logBook.logs.find(el => {
+                var logDate = new Date(el.date);
+                return logDate.getDate() == i && 
+                       logDate.getMonth() == currentMonth && 
+                       logDate.getFullYear() == currentYear;
+            });
+            var point = {};
+            point.y = log !== undefined ? log.value : 0;
+            point.x = _date;
+            
+            // If it's today, use current counter
+            if(i == today.getDate()){
+                point.y = rec.counterDay;
+            }
+            
+            dataPoints.push(point);
+            if(point.y > maxVal) maxVal = point.y;
+            total += point.y;
+        }
+        $("#chart-panel .total span").text(total);
+    }
+    
+    function makeYearData(){
+        var currentYear = today.getFullYear();
+        
+        // Group logs by month
+        var monthlyTotals = {};
+        for(var m = 0; m < 12; m++){
+            monthlyTotals[m] = 0;
+        }
+        
+        // Sum up all logs for each month
+        logBook.logs.forEach(function(log){
+            var logDate = new Date(log.date);
+            if(logDate.getFullYear() == currentYear){
+                monthlyTotals[logDate.getMonth()] += log.value;
+            }
+        });
+        
+        // Add current day's counter to current month
+        monthlyTotals[today.getMonth()] += rec.counterDay;
+        
+        // Create data points for each month
+        for(var m = 0; m <= today.getMonth(); m++){
+            var point = {
+                x: new Date(currentYear, m, 15), // Use middle of month for display
+                y: monthlyTotals[m]
+            };
+            dataPoints.push(point);
+            if(point.y > maxVal) maxVal = point.y;
+            total += point.y;
+        }
+        $("#chart-panel .total span").text(total);
+    }
+    
+    function makeTodayAllData(){
+        // For today-all, we show hourly breakdown if we had hourly data
+        // Since we don't track hourly, we'll show just today's current count as a single point
+        var point = {
+            x: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12), // noon
+            y: rec.counterDay
+        };
+        dataPoints.push(point);
+        maxVal = rec.counterDay;
+        total = rec.counterDay;
+        $("#chart-panel .total span").text(total);
+    }
+    
     switch(showBy){
         case "7-days":
             makeChartData(7);
@@ -520,17 +628,80 @@ function drawChart(recID, showBy){
         case "30-days":
             makeChartData(30);
             break;
+        case "week":
+            makeWeekData();
+            break;
+        case "month":
+            makeMonthData();
+            break;
+        case "year":
+            makeYearData();
+            break;
+        case "today-all":
+            makeTodayAllData();
+            break;
         default:
-            //
+            makeChartData(7); // Default to 7 days
             break;
     }
-    /* Add today to chart */
+    /* Add today to chart for 7-days and 30-days only */
     var rec = STORE.records.find(el => el.id == recID);
-    dataPoints.push({x: new Date(today.getFullYear(), today.getMonth(), today.getDate()), y: rec.counterDay});
-    if(rec.counterDay > maxVal) maxVal = rec.counterDay;
+    if(showBy === "7-days" || showBy === "30-days"){
+        dataPoints.push({x: new Date(today.getFullYear(), today.getMonth(), today.getDate()), y: rec.counterDay});
+        if(rec.counterDay > maxVal) maxVal = rec.counterDay;
+    }
     
     // console.log("maxVal", maxVal, "dataPoints", dataPoints); 
-    var title = {'7-days': 'Last 7 days', '30-days': 'Last 30 days'};
+    var title = {
+        '7-days': 'Last 7 days', 
+        '30-days': 'Last 30 days',
+        'week': 'Current Week',
+        'month': 'Current Month',
+        'year': 'Current Year',
+        'today-all': 'Today'
+    };
+    
+    // Configure axis based on showBy option
+    var axisXConfig = {
+        titleFontColor: "#c6ff00",
+        labelFontColor: "#c6ff00",
+        labelAngle: 70,
+        gridThickness: 1
+    };
+    
+    switch(showBy){
+        case "year":
+            axisXConfig.title = title[showBy];
+            axisXConfig.valueFormatString = "MMM";
+            axisXConfig.interval = 1;
+            axisXConfig.intervalType = "month";
+            break;
+        case "month":
+            axisXConfig.title = title[showBy];
+            axisXConfig.valueFormatString = "DD";
+            axisXConfig.interval = 2;
+            axisXConfig.intervalType = "day";
+            break;
+        case "week":
+            axisXConfig.title = title[showBy];
+            axisXConfig.valueFormatString = "DDD DD/MM";
+            axisXConfig.interval = 1;
+            axisXConfig.intervalType = "day";
+            break;
+        case "today-all":
+            axisXConfig.title = title[showBy];
+            axisXConfig.valueFormatString = "HH:mm";
+            axisXConfig.interval = 1;
+            axisXConfig.intervalType = "hour";
+            break;
+        default: // 7-days, 30-days
+            axisXConfig.title = title[showBy];
+            axisXConfig.valueFormatString = "DD/MM";
+            axisXConfig.interval = 1;
+            axisXConfig.intervalType = "day";
+            break;
+    }
+    
     var chart = new CanvasJS.Chart("chart-container", { /* https://canvasjs.com/jquery-charts/dynamic-chart/ */
         animationEnabled: true,
         backgroundColor: "#2f2f2f",
@@ -539,16 +710,7 @@ function drawChart(recID, showBy){
             fontColor: "#c6ff00",
             fontSize: '60'
         },
-        axisX:{
-            title: title[showBy],
-            titleFontColor: "#c6ff00",
-            labelFontColor: "#c6ff00",
-            labelAngle: 70,
-            valueFormatString: "DD/MM",
-            gridThickness: 1,
-            interval: 1,
-            intervalType: "day",
-        },
+        axisX: axisXConfig,
         axisY:{
             labelFontColor: "#c6ff00",
             scaleBreaks: {
