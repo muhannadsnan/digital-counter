@@ -226,21 +226,22 @@ Implemented all six chart view options in the `drawChart()` function:
 
 1. **Data Collection Functions**:
    - `makeChartData(days)` - Handles 7-day and 30-day views
-   - `makeWeekData()` - Shows current week starting from Sunday
-   - `makeMonthData()` - Displays all days in current month
-   - `makeYearData()` - Aggregates monthly totals for current year
-   - `makeTodayAllData()` - Shows today's current count
+   - `makeWeekData()` - Shows last 30 weeks with weekly totals
+   - `makeMonthData()` - Shows last 30 months with monthly aggregates
+   - `makeYearData()` - Shows last 10 years with yearly totals
+   - `makeTodayAllData()` - Shows all records with non-zero values for today
 
-2. **Axis Configuration**:
+2. **View Specifications**:
+   - **Today-all**: Bar for each record with counterDay > 0, labeled with record title
+   - **Week**: Last 30 weeks with weekly totals
+   - **Month**: Last 30 months formatted as M-YYYY (e.g., 3-2025)
+   - **Year**: Last 10 years formatted as YYYY
+
+3. **Axis Configuration**:
    - Dynamic `axisXConfig` based on selected view
-   - Appropriate date formatting for each time scale
-   - Custom intervals (daily, monthly, hourly)
-
-3. **Key Improvements**:
-   - Proper handling of today's counter (not yet logged)
-   - Total calculation for each view type
-   - Consistent data point structure across all views
-   - Year view aggregates logs by month
+   - Custom label formatters for today-all view
+   - Appropriate intervals and date formatting
+   - Compact inline code style maintained
 
 ## Known Issues & Limitations
 

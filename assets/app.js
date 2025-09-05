@@ -516,109 +516,74 @@ function drawChart(recID, showBy){
     }
     
     function makeWeekData(){
-        var currentWeek = today.getWeekNumber();
-        var _date = new Date(today);
-        // Go back to start of week (Sunday)
-        _date.setDate(_date.getDate() - _date.getDay());
-        
-        for(var i = 0; i < 7; i++){
-            var log = logBook.logs.find(el => {
-                var logDate = new Date(el.date);
-                return logDate.getDate() == _date.getDate() && 
-                       logDate.getMonth() == _date.getMonth() && 
-                       logDate.getFullYear() == _date.getFullYear();
-            });
-            var point = {};
-            point.y = log !== undefined ? log.value : 0;
-            point.x = new Date(_date.getFullYear(), _date.getMonth(), _date.getDate());
-            
-            // If it's today, use current counter instead of log
-            if(_date.getDate() == today.getDate() && 
-               _date.getMonth() == today.getMonth() && 
-               _date.getFullYear() == today.getFullYear()){
-                point.y = rec.counterDay;
+        for(var w = 29; w >= 0; w--){
+            var weekDate = new Date(today);
+            weekDate.setDate(weekDate.getDate() - (w * 7));
+            var weekNum = weekDate.getWeekNumber();
+            var weekTotal = 0;
+            for(var d = 0; d < 7; d++){
+                var checkDate = new Date(weekDate);
+                checkDate.setDate(checkDate.getDate() - checkDate.getDay() + d);
+                var log = logBook.logs.find(el => {
+                    var logDate = new Date(el.date);
+                    return logDate.getDate() == checkDate.getDate() && logDate.getMonth() == checkDate.getMonth() && logDate.getFullYear() == checkDate.getFullYear();
+                });
+                if(log !== undefined) weekTotal += log.value;
+                if(checkDate.getDate() == today.getDate() && checkDate.getMonth() == today.getMonth() && checkDate.getFullYear() == today.getFullYear()){
+                    weekTotal += rec.counterDay;
+                }
             }
-            
-            dataPoints.push(point);
-            if(point.y > maxVal) maxVal = point.y;
-            total += point.y;
-            _date.setDate(_date.getDate() + 1);
+            dataPoints.push({x: weekDate, y: weekTotal});
+            if(weekTotal > maxVal) maxVal = weekTotal;
+            total += weekTotal;
         }
         $("#chart-panel .total span").text(total);
     }
     
     function makeMonthData(){
-        var currentMonth = today.getMonth();
-        var currentYear = today.getFullYear();
-        var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        
-        for(var i = 1; i <= daysInMonth; i++){
-            var _date = new Date(currentYear, currentMonth, i);
-            var log = logBook.logs.find(el => {
-                var logDate = new Date(el.date);
-                return logDate.getDate() == i && 
-                       logDate.getMonth() == currentMonth && 
-                       logDate.getFullYear() == currentYear;
+        for(var m = 29; m >= 0; m--){
+            var monthDate = new Date(today.getFullYear(), today.getMonth() - m, 1);
+            var monthTotal = 0;
+            logBook.logs.forEach(function(log){
+                var logDate = new Date(log.date);
+                if(logDate.getMonth() == monthDate.getMonth() && logDate.getFullYear() == monthDate.getFullYear()){
+                    monthTotal += log.value;
+                }
             });
-            var point = {};
-            point.y = log !== undefined ? log.value : 0;
-            point.x = _date;
-            
-            // If it's today, use current counter
-            if(i == today.getDate()){
-                point.y = rec.counterDay;
-            }
-            
-            dataPoints.push(point);
-            if(point.y > maxVal) maxVal = point.y;
-            total += point.y;
+            if(m == 0) monthTotal += rec.counterDay;
+            dataPoints.push({x: new Date(monthDate.getFullYear(), monthDate.getMonth(), 15), y: monthTotal});
+            if(monthTotal > maxVal) maxVal = monthTotal;
+            total += monthTotal;
         }
         $("#chart-panel .total span").text(total);
     }
     
     function makeYearData(){
-        var currentYear = today.getFullYear();
-        
-        // Group logs by month
-        var monthlyTotals = {};
-        for(var m = 0; m < 12; m++){
-            monthlyTotals[m] = 0;
-        }
-        
-        // Sum up all logs for each month
-        logBook.logs.forEach(function(log){
-            var logDate = new Date(log.date);
-            if(logDate.getFullYear() == currentYear){
-                monthlyTotals[logDate.getMonth()] += log.value;
-            }
-        });
-        
-        // Add current day's counter to current month
-        monthlyTotals[today.getMonth()] += rec.counterDay;
-        
-        // Create data points for each month
-        for(var m = 0; m <= today.getMonth(); m++){
-            var point = {
-                x: new Date(currentYear, m, 15), // Use middle of month for display
-                y: monthlyTotals[m]
-            };
-            dataPoints.push(point);
-            if(point.y > maxVal) maxVal = point.y;
-            total += point.y;
+        for(var y = 9; y >= 0; y--){
+            var yearDate = new Date(today.getFullYear() - y, 0, 1);
+            var yearTotal = 0;
+            logBook.logs.forEach(function(log){
+                var logDate = new Date(log.date);
+                if(logDate.getFullYear() == yearDate.getFullYear()){
+                    yearTotal += log.value;
+                }
+            });
+            if(y == 0) yearTotal += rec.counterDay;
+            dataPoints.push({x: new Date(yearDate.getFullYear(), 6, 1), y: yearTotal});
+            if(yearTotal > maxVal) maxVal = yearTotal;
+            total += yearTotal;
         }
         $("#chart-panel .total span").text(total);
     }
     
     function makeTodayAllData(){
-        // For today-all, we show hourly breakdown if we had hourly data
-        // Since we don't track hourly, we'll show just today's current count as a single point
-        var point = {
-            x: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12), // noon
-            y: rec.counterDay
-        };
-        dataPoints.push(point);
-        maxVal = rec.counterDay;
-        total = rec.counterDay;
+        var allRecords = STORE.records.filter(r => r.counterDay > 0);
+        allRecords.forEach(function(record, i){
+            dataPoints.push({x: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 10 + i * 2), y: record.counterDay, label: record.title});
+            if(record.counterDay > maxVal) maxVal = record.counterDay;
+            total += record.counterDay;
+        });
+        if(dataPoints.length == 0) dataPoints.push({x: today, y: 0});
         $("#chart-panel .total span").text(total);
     }
     
@@ -655,46 +620,38 @@ function drawChart(recID, showBy){
     var title = {
         '7-days': 'Last 7 days', 
         '30-days': 'Last 30 days',
-        'week': 'Current Week',
-        'month': 'Current Month',
-        'year': 'Current Year',
-        'today-all': 'Today'
+        'week': 'Last 30 Weeks',
+        'month': 'Last 30 Months',
+        'year': 'Last 10 Years',
+        'today-all': 'Today - All Records'
     };
     
-    // Configure axis based on showBy option
-    var axisXConfig = {
-        titleFontColor: "#c6ff00",
-        labelFontColor: "#c6ff00",
-        labelAngle: 70,
-        gridThickness: 1
-    };
+    var axisXConfig = {titleFontColor: "#c6ff00", labelFontColor: "#c6ff00", labelAngle: 70, gridThickness: 1};
     
     switch(showBy){
         case "year":
             axisXConfig.title = title[showBy];
-            axisXConfig.valueFormatString = "MMM";
+            axisXConfig.valueFormatString = "YYYY";
             axisXConfig.interval = 1;
-            axisXConfig.intervalType = "month";
+            axisXConfig.intervalType = "year";
             break;
         case "month":
             axisXConfig.title = title[showBy];
-            axisXConfig.valueFormatString = "DD";
+            axisXConfig.valueFormatString = "M-YYYY";
             axisXConfig.interval = 2;
-            axisXConfig.intervalType = "day";
+            axisXConfig.intervalType = "month";
             break;
         case "week":
             axisXConfig.title = title[showBy];
-            axisXConfig.valueFormatString = "DDD DD/MM";
-            axisXConfig.interval = 1;
-            axisXConfig.intervalType = "day";
+            axisXConfig.valueFormatString = "W#/YY";
+            axisXConfig.interval = 2;
+            axisXConfig.intervalType = "week";
             break;
         case "today-all":
             axisXConfig.title = title[showBy];
-            axisXConfig.valueFormatString = "HH:mm";
-            axisXConfig.interval = 1;
-            axisXConfig.intervalType = "hour";
+            axisXConfig.labelFormatter = function(e){return e.chart.data[0].dataPoints[e.index] ? e.chart.data[0].dataPoints[e.index].label : "";};
             break;
-        default: // 7-days, 30-days
+        default:
             axisXConfig.title = title[showBy];
             axisXConfig.valueFormatString = "DD/MM";
             axisXConfig.interval = 1;

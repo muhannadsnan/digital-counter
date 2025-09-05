@@ -251,3 +251,4 @@ await signOut(auth);
 5. **Better debugging** - Proper source maps and error messages
 6. **Smaller bundle size** - Firebase v9 is significantly smaller
 7. **Future-proof** - Firebase v7 is legacy, v9+ is actively maintained
+- to memorize: in this project i have written code inlined and compact, follow that in future, don't use many lines per command. Another point, when i say commit, you automatically add the changes to the md file in concern, and stage all files been changes, not one by one, then you commit using a descriptive message. don't push unless told.
