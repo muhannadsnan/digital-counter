@@ -579,11 +579,11 @@ function drawChart(recID, showBy){
     function makeTodayAllData(){
         var allRecords = STORE.records.filter(r => r.counterDay > 0);
         allRecords.forEach(function(record, i){
-            dataPoints.push({x: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 10 + i * 2), y: record.counterDay, label: record.title});
+            dataPoints.push({x: i, y: record.counterDay, label: record.title});
             if(record.counterDay > maxVal) maxVal = record.counterDay;
             total += record.counterDay;
         });
-        if(dataPoints.length == 0) dataPoints.push({x: today, y: 0});
+        if(dataPoints.length == 0) dataPoints.push({x: 0, y: 0, label: "No data"});
         $("#chart-panel .total span").text(total);
     }
     
@@ -643,13 +643,18 @@ function drawChart(recID, showBy){
             break;
         case "week":
             axisXConfig.title = title[showBy];
-            axisXConfig.valueFormatString = "W#/YY";
+            axisXConfig.labelFormatter = function(e){
+                var d = new Date(e.value);
+                return "W" + d.getWeekNumber() + "/" + d.getFullYear().toString().substr(2);
+            };
             axisXConfig.interval = 2;
-            axisXConfig.intervalType = "week";
             break;
         case "today-all":
             axisXConfig.title = title[showBy];
-            axisXConfig.labelFormatter = function(e){return e.chart.data[0].dataPoints[e.index] ? e.chart.data[0].dataPoints[e.index].label : "";};
+            axisXConfig.labelFormatter = function(e){
+                var dp = e.chart.data[0].dataPoints[e.value];
+                return dp ? dp.label : "";
+            };
             break;
         default:
             axisXConfig.title = title[showBy];
@@ -683,21 +688,27 @@ function drawChart(recID, showBy){
             animationEnabled: true,
             fontColor: "#c6ff00",
             fontSize: 60,
-            backgroundColor: "#2f2f2f80", // with opacity
+            backgroundColor: "#2f2f2f80",
             contentFormatter: function (e) {
-                var content = " ";
+                var content = "";
                 e.entries.forEach(el => {
-                    content += "<strong>" + el.dataPoint.y + "</strong>: <small>" + el.dataPoint.x.toLocaleDateString("en") + "</small>";
+                    if(showBy == "today-all"){
+                        content += "<strong>" + el.dataPoint.label + "</strong>: " + el.dataPoint.y;
+                    }else if(el.dataPoint.x instanceof Date){
+                        var dateStr = (el.dataPoint.x.getMonth()+1) + "-" + el.dataPoint.x.getFullYear();
+                        content += "<strong>" + el.dataPoint.y + "</strong>: <small>" + dateStr + "</small>";
+                    }else{
+                        content += "<strong>" + el.dataPoint.y + "</strong>";
+                    }
                 });
-				return content;
-			}
+                return content;
+            }
         },
         data: [
             {
-                type: "area", // line, area, spline
+                type: showBy == "today-all" ? "column" : "area",
                 dataPoints: dataPoints,
-                axisXIndex: 0, //defaults to 0
-                // showInLegend: true,
+                axisXIndex: 0,
                 color: "#c6ff00",
                 markerSize: 15,
                 markerColor: "green",

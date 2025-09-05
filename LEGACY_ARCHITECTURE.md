@@ -232,15 +232,16 @@ Implemented all six chart view options in the `drawChart()` function:
    - `makeTodayAllData()` - Shows all records with non-zero values for today
 
 2. **View Specifications**:
-   - **Today-all**: Bar for each record with counterDay > 0, labeled with record title
-   - **Week**: Last 30 weeks with weekly totals
+   - **Today-all**: Column chart showing bars for each record with counterDay > 0, record names as x-axis labels
+   - **Week**: Last 30 weeks with weekly totals, formatted as W#/YY using getWeekNumber()
    - **Month**: Last 30 months formatted as M-YYYY (e.g., 3-2025)
    - **Year**: Last 10 years formatted as YYYY
+   - **Tooltips**: All dates shown in MM-YYYY format for consistency
 
-3. **Axis Configuration**:
-   - Dynamic `axisXConfig` based on selected view
-   - Custom label formatters for today-all view
-   - Appropriate intervals and date formatting
+3. **Chart Configuration**:
+   - Dynamic chart type: column for today-all, area for others
+   - Custom label formatters for week and today-all views
+   - Tooltip formatter shows MM-YYYY dates and record names for today-all
    - Compact inline code style maintained
 
 ## Known Issues & Limitations
