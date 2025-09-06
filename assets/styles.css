@@ -48,7 +48,7 @@ footer #percent{color: #2f2f2f; font-size: 3rem; position: absolute; bottom: 0; 
 button#reset{position: absolute; top: 0; left: 0;}
 .position-right{position: absolute; top: 0; right: 0;}
 
-#panel{width: 100%; padding: 0; background: #212121; z-index: -9999; position: absolute; top: 0; bottom: 0; right: -300%; font-size: 4rem; font-family: Oxanium, Almarai; color: #c6ff00; overflow-x: hidden; overflow-y: auto; border: 0;}
+#panel{width: 100%; padding: 0; background: #212121; z-index: -9999; position: absolute; top: 0; bottom: 0; right: -300%; font-size: 4rem; font-family: Oxanium, Almarai; color: #c6ff00; overflow-x: hidden; border: 0;}
 #panel.show{right: 0; z-index: 102;}
 #panel #showSettings{position: absolute; top: 0; left: 0; padding: 2rem;}
 #panel #hideSettings{position: relative;}
