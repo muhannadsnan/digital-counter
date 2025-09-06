@@ -91,7 +91,7 @@ button#reset{position: absolute; top: 0; left: 0;}
 #panel .record.showDropdown button.details .show{display: none;}
 #panel .record.showDropdown button.details .close{display: block;}
 #panel .record.showDropdown .dropdown{height: 22rem;}
-#panel .panel-footer{color: #fff; font-size: 3rem; text-align: center;}
+#panel .panel-footer{color: #fff; font-size: 3rem; text-align: center; position: absolute; bottom: 0;}
 .tabs-header{border-bottom: 2px solid #444; margin-bottom: 2rem;}
 .tab-btn{background: transparent; border: 0; color: #777; font-size: 3rem; padding: 1.5rem 2rem; position: relative; transition: all 0.2s; flex: 1;}
 .tab-btn:after{content: ""; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #c6ff00; transition: width 0.3s;}
@@ -102,7 +102,7 @@ button#reset{position: absolute; top: 0; left: 0;}
 .tab-pane h3{margin: 3rem 0; text-align: center;}
 .tab-pane p, .tab-pane li{font-size: 2.5rem; color: #fff;}
 @keyframes fadeIn{from{opacity: 0;} to{opacity: 1;}}
-#showPrayers, #logoutBtn{height: 8rem; background: rgba(68,68,68,0.15); border: 0; border-radius: 0; transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55); font-size: 3rem !important; display: inline-flex !important; align-items: center; justify-content: center; width: 47%; padding: 2rem 1rem; position: relative; text-transform: uppercase; letter-spacing: 2px; font-weight: bold;}
+#showPrayers, #logoutBtn{height: 8rem; background: rgba(68,68,68,0.15); border: 0; border-radius: 0; transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55); font-size: 3rem !important; align-items: center; width: 47%; padding: 2rem 1rem; position: relative; text-transform: uppercase; letter-spacing: 2px; font-weight: bold;}
 #showPrayers{color: #c6ff00 !important; padding: 0;}
 #logoutBtn{color: #777 !important;}
 #showPrayers:after, #logoutBtn:after{content: ""; position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: #c6ff00; transition: width 0.3s;}
@@ -111,7 +111,7 @@ button#reset{position: absolute; top: 0; left: 0;}
 #logoutBtn:active{background: rgba(119,119,119,0.2); transform: translateY(2px);}
 #logoutBtn:active:after{background: #ff3737;}
 #showPrayers img{width: auto; height: 8rem; margin-right: 1rem;}
-#logoutBtn i{font-size: 3rem; color: #ff3737;}
+#logoutBtn i{font-size: 4rem; color: #ff3737;}
 
 #chart-panel{width: 100%; position: absolute; left: -200%; right: 300%; background: #2f2f2f; top: 0; bottom: 0; z-index: -1; overflow-y: scroll;}
 #chart-panel.show{left: 0; right: 0; z-index: 103; }
@@ -193,8 +193,8 @@ footer{bottom: -100%;}
 .animated footer{bottom: 0; transition: all .8s ease .9s;}
 .animated #loading-panel{display: none;}
 
-#signin-google{background: #fff;color: #4285f4 !important; }
-#signin-facebook{background: #3b5998; }
+#signin-google{background: #fff;color: #4285f4 !important; width: 49%; }
+#signin-facebook{background: #3b5998; width: 49%; }
 
 @media screen and (min-width: 600px) and (orientation:landscape){
   body.animated{border: 0.25rem solid #777; border-radius: 1rem;}

@@ -4,12 +4,18 @@ function init() {
     TOKEN = Cookies.get('token') || undefined;
     USER = Cookies.get('user') || null; // dont pass undefined here!
     USER = JSON.parse(USER) || undefined;
-    if(TOKEN && USER){
+    
+    console.log('Init - TOKEN:', TOKEN, 'USER:', USER);
+    
+    if(TOKEN && USER && USER.email && USER.email !== 'null' && USER.email !== ''){
         db = new Database();
         db.x_signin();
         console.log('User "'+USER.email+'" is logged in.');
     }
     else{
+        console.log('No valid login found, booting as guest');
+        TOKEN = null;
+        USER = null;
         bootApp();
     }
 }
@@ -98,9 +104,18 @@ function fillValues(){
     selectedRecord = STORE.records[STORE.selectedIndex];
     activeChanged = false;
     fillSelectedRecord();
-    $user.text(isLoggedIn ? USER.displayName : 'Guest');
-    $panel.find('.login-buttons-container').toggleClass('d-none', isLoggedIn());
-    $panel.find('#logoutBtn').toggleClass('d-none', !isLoggedIn());
+    var loggedIn = isLoggedIn();
+    console.log('fillValues - isLoggedIn:', loggedIn, 'TOKEN:', TOKEN, 'USER:', USER);
+    
+    $user.text(loggedIn ? USER.displayName : 'Guest');
+    $panel.find('.login-buttons-container').toggleClass('d-none', loggedIn);
+    $panel.find('#logoutBtn').toggleClass('d-none', !loggedIn);
+    
+    // Force hide logout button if not logged in
+    if(!loggedIn) {
+        $('#logoutBtn').addClass('d-none');
+        $('.login-buttons-container').removeClass('d-none');
+    }
     logging();
     if(STORE.settings === undefined){
         STORE.settings = new Settings();
@@ -762,6 +777,13 @@ function bootApp(){
     }
     $panel.find('.settings').removeClass('show');
     $panel.find('#showSettings').removeClass('d-none');
+    
+    // Double-check logout button visibility
+    if(!isLoggedIn()) {
+        console.log('bootApp - Ensuring logout button is hidden');
+        $('#logoutBtn').addClass('d-none');
+        $('.login-buttons-container').removeClass('d-none');
+    }
 }
 
 function showAuthPanel(){
@@ -800,16 +822,27 @@ function connectLogin(){
 }
 
 function isLoggedIn(){
-    return !(TOKEN === undefined || TOKEN === '' || USER === undefined || USER.email === 'null');
+    return !(TOKEN === undefined || TOKEN === '' || TOKEN === null || USER === undefined || USER === null || USER.email === 'null' || USER.email === '' || USER.email === undefined);
 }
 
 function logout(){
-    db.signOut();
+    if(!confirm('Are you sure you want to logout?')) return;
+    
+    console.log('Logout initiated');
+    if(db) db.signOut();
     TOKEN = null;
-    USER = new User();
-    if(Cookies.get("token") !== undefined && Cookies.get("token") !== "") Cookies.remove("token");
-    if(Cookies.get("user") !== undefined && Cookies.get("user") !== "") Cookies.remove("user");
-    window.location = window.location;
+    USER = null;
+    Cookies.remove("token");
+    Cookies.remove("user");
+    
+    // Immediately hide logout button and show login buttons
+    $('#logoutBtn').addClass('d-none');
+    $('.login-buttons-container').removeClass('d-none');
+    
+    console.log('Cookies cleared, reloading page');
+    setTimeout(function() {
+        window.location.reload();
+    }, 100);
 }
 
 function save(toSave){
@@ -876,7 +909,7 @@ function signout(){
     db.signOut();
 }
 
-window.onload = init();
+window.onload = init;
 
 /* 
     VERSIONS:
