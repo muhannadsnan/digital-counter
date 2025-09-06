@@ -48,7 +48,7 @@ footer #percent{color: #2f2f2f; font-size: 3rem; position: absolute; bottom: 0; 
 button#reset{position: absolute; top: 0; left: 0;}
 .position-right{position: absolute; top: 0; right: 0;}
 
-#panel{width: 100%; padding: 0; background: #212121; z-index: -9999; position: absolute; top: 0; bottom: 0; right: -300%; font-size: 4rem; font-family: Oxanium, Almarai; color: #c6ff00; overflow-x: hidden; border: 0;}
+#panel{width: 100%; padding: 0; background: #212121; z-index: -9999; position: absolute; top: 0; bottom: 0; right: -300%; font-size: 4rem; font-family: Oxanium, Almarai; color: #c6ff00; overflow-x: hidden; overflow-y: auto; border: 0;}
 #panel.show{right: 0; z-index: 102;}
 #panel #showSettings{position: absolute; top: 0; left: 0; padding: 2rem;}
 #panel #hideSettings{position: relative;}
@@ -91,7 +91,7 @@ button#reset{position: absolute; top: 0; left: 0;}
 #panel .record.showDropdown button.details .show{display: none;}
 #panel .record.showDropdown button.details .close{display: block;}
 #panel .record.showDropdown .dropdown{height: 22rem;}
-#panel .panel-footer{color: #fff; font-size: 3rem; text-align: center;}
+#panel .panel-footer{color: #fff; font-size: 3rem; text-align: center; padding: 2rem 0; margin-top: 2rem;}
 .tabs-header{border-bottom: 2px solid #444; margin-bottom: 2rem;}
 .tab-btn{background: transparent; border: 0; color: #777; font-size: 3rem; padding: 1.5rem 2rem; position: relative; transition: all 0.2s; flex: 1;}
 .tab-btn:after{content: ""; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #c6ff00; transition: width 0.3s;}
