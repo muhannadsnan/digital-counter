@@ -5,7 +5,6 @@ function init() {
     USER = Cookies.get('user') || null; // dont pass undefined here!
     USER = JSON.parse(USER) || undefined;
     
-    console.log('Init - TOKEN:', TOKEN, 'USER:', USER);
     
     if(TOKEN && USER && USER.email && USER.email !== 'null' && USER.email !== ''){
         db = new Database();
@@ -105,7 +104,6 @@ function fillValues(){
     activeChanged = false;
     fillSelectedRecord();
     var loggedIn = isLoggedIn();
-    console.log('fillValues - isLoggedIn:', loggedIn, 'TOKEN:', TOKEN, 'USER:', USER);
     
     $user.text(loggedIn ? USER.displayName : 'Guest');
     $panel.find('.login-buttons-container').toggleClass('d-none', loggedIn);
