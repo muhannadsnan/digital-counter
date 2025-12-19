@@ -149,6 +149,30 @@ Two-tier persistence strategy:
 - **Login not working**: Check browser console for Firebase auth errors
 - **Data not syncing**: Verify Firestore rules allow read/write for authenticated users
 
+## Known Issues (Unsolved)
+
+### Mobile Panel Buttons Not Responding
+**Status:** Unsolved
+**Affected:** Panel buttons (remove, edit, goal, logout, chart) on mobile devices
+
+**Problem:** Buttons inside the panel dropdown don't respond to taps on mobile (iOS Safari, Chrome mobile). Desktop works fine.
+
+**What was tried:**
+1. **Click-only handlers** - Standard jQuery `.on('click', fn)` - doesn't register taps on mobile
+2. **Adding touchend** - `.on('click touchend', fn)` - causes double-firing (touchend fires, then click fires 300ms later)
+3. **touchend with preventDefault** - Prevents double-fire but triggers on scroll/drag gestures
+4. **Event delegation** - `$('body').on('click', '.deleteRecord', fn)` - didn't help
+5. **CSS touch-action: manipulation** - Added to buttons to remove 300ms delay - didn't fix the issue
+6. **clone(true) pattern** - Template cloning with event handlers attached - original working pattern from commit 84183b27
+
+**Current state:** Using click-only handlers. Main clicker (`#clicker`) uses `click touchend` and works fine. Panel buttons only use `click` but don't respond on mobile.
+
+**Possible causes to investigate:**
+- CSS `overflow: hidden` on dropdown container may be intercepting touch events
+- z-index issues with overlapping elements
+- iOS Safari specific touch event handling
+- The dropdown's `height: 0` transition may affect touch targets
+
 ## TODO: Firebase Migration to NPM Packages
 
 ### Current Issues
