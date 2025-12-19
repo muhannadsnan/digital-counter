@@ -20,28 +20,28 @@ function init() {
 function initListeners(){
     $('body').on('click', function(e) {e.stopPropagation();});
     $('#clicker').on('click touchend', increaseCounter);
-    $('#reset').on('click', reset);
-    $('#showPanel').on('click', showPanel);
-    $('#closePanel').on('click', closePanel);
-    $('.close').on('click', function(){ $(this).parent().parent().toggleClass('show') });
-    $('#add-record-btn').on('click', createRecord);
-    $('button.details').on('click', toggleDropdown);
-    $('.record-body').on('click', onClickRecordBody);
-    $('.changeTitle').on('click', changeTitle);
-    $('.changeGoal').on('click', changeGoal);
-    $('.deleteRecord').on('click', deleteRecord);
-    $('#showPrayers').on('click', showPrayers);
-    $('#showSettings').on('click', toggleSettings);
-    $('#hideSettings').on('click', closeSettings);
-    $('#chkDelayRefresh').on('click', toggleDelayRefresh);
-    $('.showChart').on('click', showChart);
-    $('#showAuthBtn').on('click', login);
-    $('.signin').on('click', signin);
-    $('.signout').on('click', signout);
-    $('#logoutBtn').on('click', logout);
-    $chartPanel.find('.close').on('click', closeChartpanel);
+    $('#reset').on('click touchend', reset);
+    $('#showPanel').on('click touchend', showPanel);
+    $('#closePanel').on('click touchend', closePanel);
+    $('.close').on('click touchend', function(){ $(this).parent().parent().toggleClass('show') });
+    $('#add-record-btn').on('click touchend', createRecord);
+    $('button.details').on('click touchend', toggleDropdown);
+    $('.record-body').on('click touchend', onClickRecordBody);
+    $('.changeTitle').on('click touchend', changeTitle);
+    $('.changeGoal').on('click touchend', changeGoal);
+    $('.deleteRecord').on('click touchend', deleteRecord);
+    $('#showPrayers').on('click touchend', showPrayers);
+    $('#showSettings').on('click touchend', toggleSettings);
+    $('#hideSettings').on('click touchend', closeSettings);
+    $('#chkDelayRefresh').on('click touchend', toggleDelayRefresh);
+    $('.showChart').on('click touchend', showChart);
+    $('#showAuthBtn').on('click touchend', login);
+    $('.signin').on('click touchend', signin);
+    $('.signout').on('click touchend', signout);
+    $('#logoutBtn').on('click touchend', logout);
+    $chartPanel.find('.close').on('click touchend', closeChartpanel);
     $chartPanel.find('select.showBy').on('change', onChangeShowBy);
-    $('.tab-btn').on('click', function(){
+    $('.tab-btn').on('click touchend', function(){
         var tab = $(this).data('tab');
         $('.tab-btn').removeClass('active');
         $(this).addClass('active');
@@ -203,7 +203,8 @@ function togglePannel(){
     $panel.toggleClass('show');
 }
 
-function showPanel(){
+function showPanel(e){
+    if(e && e.type == 'touchend'){ e.preventDefault(); }
     togglePannel();
     showSettings();
     showRecords();
@@ -214,7 +215,8 @@ function showSettings(){
     $('#chkDelayRefresh i.checked').toggleClass('d-none', !STORE.settings.delayRefresh);
 }
 
-function closePanel(){
+function closePanel(e){
+    if(e && e.type == 'touchend'){ e.preventDefault(); }
     pulse($('#showPanel'), 2);
     if(activeChanged){ pulseAll(); activeChanged = false; }
     togglePannel();
@@ -290,13 +292,15 @@ function logging(){
     }
 }
 
-function toggleDropdown(){
+function toggleDropdown(e){
+    if(e.type == 'touchend'){ e.preventDefault(); }
     var $parent = $(this).closest('.record');
     $parent.toggleClass('showDropdown');
     $('.record').not($parent).removeClass('showDropdown');
 }
 
-function onClickRecordBody(){
+function onClickRecordBody(e){
+    if(e.type == 'touchend'){ e.preventDefault(); }
     $('.record').removeClass('color-primary active');
     var $rec = $(this).closest('.record');
     $rec.addClass('color-primary active');
@@ -369,7 +373,8 @@ function pulseAll(){
 
 function showPrayers(){ window.location = "./prayers.html"; }
 
-function toggleSettings(){
+function toggleSettings(e){
+    if(e && e.type == 'touchend'){ e.preventDefault(); }
     $panel.find('.settings').addClass('show');
     $panel.find('#showSettings').addClass('d-none');
     $panel.find('#add-record-input').focus();
@@ -402,7 +407,8 @@ function onChangeShowBy(){
     $chartPanel.find('.container').removeClass('hide');
 }
 
-function showChart(){
+function showChart(e){
+    if(e && e.type == 'touchend'){ e.preventDefault(); }
     if($(this).closest('.record').attr('data-id') !== undefined){
         $chartPanel.attr('data-rec-id', $(this).closest('.record').attr('data-id'));
     }
@@ -410,7 +416,8 @@ function showChart(){
     $chartPanel.toggleClass('show');
 }
 
-function closeChartpanel(){
+function closeChartpanel(e){
+    if(e && e.type == 'touchend'){ e.preventDefault(); }
     $chartPanel.find('.chart-container canvas').remove();
     $chartPanel.removeClass('show');
 }
@@ -695,4 +702,4 @@ function signout(){
     db.signOut();
 }
 
-window.onload = init;
+window.onload = init();
